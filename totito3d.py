@@ -55,19 +55,24 @@ def winner(state):
     state_slice = []
     for j in range(state_size):
       state_slice.append([state[j][i][k] for k in range(state_size)])
-
     winner_in_slice = slice_winner(state_slice)
 
     if winner_in_slice != draw_token:
       return winner_in_slice
 
-  diagonals = [0, 0, 0, 0]
+  diagonals = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
   for i in range(state_size):
     diagonals[0] += state[i][i][i]
     diagonals[1] += state[state_size - 1 - i][i][i]
     diagonals[2] += state[i][state_size - 1 - i][i]
     diagonals[3] += state[state_size - 1 - i][state_size - 1 - i][i]
-
+    for j in range(state_size):
+      diagonals[4+j] += state[i][i][j]
+      diagonals[8+j] += state[j][i][i]
+      diagonals[12+j] += state[state_size - 1 - i][i][j]
+      diagonals[16+j] += state[i][state_size - 1 - i][j]
+      diagonals[20+j] += state[state_size - 1 - i][state_size - 1 - i][j]
+    
   if (p1_token * state_size) in diagonals:
     return p1_token
 
