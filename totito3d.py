@@ -1,3 +1,8 @@
+import itertools
+import random
+import copy
+import operator
+
 board = [
   [
     [0, 0, 0, 0],
@@ -25,10 +30,14 @@ board = [
   ]
 ]
 
+iterations = 50
+
 p1_token = 1
 p2_token = -1
 draw_token = 0
 
+allPositions = list(itertools.product([0,1,2,3], repeat=3))
+#print random.sample(allPositions, len(allPositions)/2)
 
 def slice_winner(state_slice):
   slice_size = len(state_slice)
@@ -111,22 +120,96 @@ while winner(board) == draw_token:
   print "Board:"
   print draw_board(board)
   print ""
-
+  
   # Print 
   print "Player %s turn:" % (1 if player_1_turn else 2)
 
   # Get input
-  x = int(raw_input("x: "))
-  y = int(raw_input("y: "))
-  z = int(raw_input("z: "))
 
+  if player_1_turn:
+    x = int(raw_input("x: "))
+    y = int(raw_input("y: "))
+    z = int(raw_input("z: "))
+  else:
+    choises = {}
+    #isForced = False
+    #forcedPosition = (0, 0, 0)
+    for position in allPositions:
+      #Tomamos una de las posiciones y obtenemos los valores.
+      tempX = position[0]
+      tempY = position[1]
+      tempZ = position[2]
+
+      virtualBoard = copy.deepcopy(board)
+
+      virtualBoard[tempX][tempY][tempZ] = -1
+
+      jugadas = len(allPositions)
+
+      for i in range(iterations):
+
+        tempVirtualBoard = copy.deepcopy(virtualBoard)
+        tempPositions = copy.deepcopy(allPositions)
+
+        quienGano = winner(tempVirtualBoard) 
+        tempJugadas = 0
+        turn = 1
+        while( quienGano == 0 and tempJugadas < jugadas):
+          tempJugadas = tempJugadas + 1
+          #print random.choise(tempPositions)
+          thePosition = tempPositions[random.randrange(len(tempPositions))]
+          tempVirtualBoard[thePosition[0]][thePosition[1]][thePosition[2]] = turn
+          quienGano = winner(tempVirtualBoard) 
+          if(turn == 1):
+            turn = -1
+          else:
+            turn = 1
+
+
+        if(quienGano == -1):
+          #No va a perder
+          if (tempX, tempY, tempZ) in choises:
+            for i, j in choises.items():       
+              if i == (tempX, tempY, tempZ) :
+                  choises[i] = choises[i] + 2
+          else:
+            choises[position] =  2
+        elif(quienGano == 0):
+          #No va a perder
+          if (tempX, tempY, tempZ) in choises:
+            for i, j in choises.items():       
+              if i == (tempX, tempY, tempZ) :
+                  choises[i] = choises[i] + 1
+          else:
+            choises[position] =  1
+        else:
+          if (tempX, tempY, tempZ) in choises:
+            for i, j in choises.items():       
+              if i == (tempX, tempY, tempZ) :
+                  choises[i] = choises[i] - 2
+          else:
+            choises[position] =  -2
+          
+
+    maxResult = (0,0,0)
+    maxSum = 0
+    worstMaxSum = iterations
+    print choises
+    maxResult = max(choises.iteritems(), key=operator.itemgetter(1))[0]
+    print maxResult
+    maxSum = j
+
+    x = maxResult[0]
+    y = maxResult[1]
+    z = maxResult[2]
   if board[x][y][z] == draw_token:
     board[x][y][z] = 1 if player_1_turn else -1
     player_1_turn = not player_1_turn
-
+    allPositions.remove((x,y,z))
   else:
     print ""
     print "ERROR: occupied position, please retry in a new position"
     print ""
 
 print "Player %s is the winner!" % (1 if winner(board) == 1 else 2)
+print draw_board(board)
