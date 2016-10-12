@@ -132,8 +132,8 @@ while winner(board) == draw_token:
     z = int(raw_input("z: "))
   else:
     choises = {}
-    #isForced = False
-    #forcedPosition = (0, 0, 0)
+    isForced = False
+    forcedPosition = (0, 0, 0)
     for position in allPositions:
       #Tomamos una de las posiciones y obtenemos los valores.
       tempX = position[0]
@@ -141,6 +141,12 @@ while winner(board) == draw_token:
       tempZ = position[2]
 
       virtualBoard = copy.deepcopy(board)
+
+      virtualBoard[tempX][tempY][tempZ] = 1
+
+      if winner(virtualBoard) == 1:
+        isForced = True
+        forcedPosition = position
 
       virtualBoard[tempX][tempY][tempZ] = -1
 
@@ -194,10 +200,11 @@ while winner(board) == draw_token:
     maxResult = (0,0,0)
     maxSum = 0
     worstMaxSum = iterations
-    print choises
     maxResult = max(choises.iteritems(), key=operator.itemgetter(1))[0]
-    print maxResult
     maxSum = j
+
+    if(isForced):
+      maxResult = forcedPosition
 
     x = maxResult[0]
     y = maxResult[1]
